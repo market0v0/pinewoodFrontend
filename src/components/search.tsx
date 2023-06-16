@@ -13,11 +13,12 @@ const Search = () => {
   }
 
   return (
-    <div className=' flex w-[100%] items-center rounded-md bg-[#838383] text-[.8rem] outline outline-1 outline-[#000000]'>
+    <div className=' flex w-[100%] items-center rounded-md bg-[#ffffff] text-[.8rem] outline outline-1 outline-[#000000]'>
       <input
         type='text'
         className='w-full bg-[#ffffff00] p-[.4rem] outline-none'
         value={message}
+        placeholder='find Bike'
         onChange={e => setMessage(e.target.value)}
         onKeyDown={handleKeyDown}
       />

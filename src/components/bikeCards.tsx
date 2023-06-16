@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 
-const BikeCards: React.FC<{ img: string; id: number; title: string; price: string }> = ({
+const BikeCards: React.FC<{ img: string; id: string; title: string; price: string }> = ({
   img,
   id,
   title,
@@ -12,13 +12,15 @@ const BikeCards: React.FC<{ img: string; id: number; title: string; price: strin
   const router = useRouter()
 
   const handleCardDoubleClick = () => {
-    // Redirect to the specific bike page
-    router.push('/specificBike')
+    router.push({
+      pathname: '/specificBike',
+      query: { id: id }
+    })
   }
 
   return (
     <div
-      className='relative h-full overflow-hidden rounded-md bg-black text-center font-inter shadow drop-shadow-xl'
+      className='relative h-full overflow-hidden rounded-md bg-white text-center font-inter text-[#000] shadow drop-shadow-xl'
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onDoubleClick={handleCardDoubleClick}
@@ -33,9 +35,9 @@ const BikeCards: React.FC<{ img: string; id: number; title: string; price: strin
           {isHovered && <p className='mt-2 cursor-pointer text-[.8rem] text-white'>View Bike</p>}
         </div>
       </div>
-      <div className='bg-black p-3'>
-        <h3 className='text-[.9rem] font-semibold text-[#fff]'>{title}</h3>
-        <p className='text-[.7rem] tracking-[.05rem] text-[#ffffff8e]'>{'₱' + price}</p>
+      <div className=' p-3'>
+        <h3 className='text-[1.5rem] font-semibold '>{title}</h3>
+        <p className='text-[.7rem] tracking-[.05rem] '>{'₱' + price}</p>
       </div>
     </div>
   )

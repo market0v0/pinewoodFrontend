@@ -1,92 +1,183 @@
-import React, { useState } from 'react'
+import React, { ChangeEvent, useEffect, useState } from 'react'
 import NavBar from './navbar'
 import BikeCards from './bikeCards'
 import SlideShow from './slideshow'
 import Image from 'next/image'
 import ScrollToTopButton from './scrollupBtn'
 import Search from './search'
+import { GetPriceBike, GetallBike, GetcategoryPriceBike } from '@/api/bikesAPI'
+import { useRouter } from 'next/router'
+import Topslide from './topslide'
 
 interface CardHolderProps {
-  categoryImg: string
   category: string
-  Data: { id: number; title: string; price: string; img: string }[]
+  categoryImg: string
+}
+
+interface Bikes {
+  model: string
+  price: number
+  img: string[]
+  specs: string
+  category: string
+  clicks: number
+  _id: string
 }
 
 const slides = ['./img/mtbHome.svg', './img/gravelHome.svg', './img/rbHome.svg']
 
-const CardHolder: React.FC<CardHolderProps> = ({ category, categoryImg, Data }) => {
+const CardHolder: React.FC<CardHolderProps> = ({ category, categoryImg }) => {
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 12
-  const totalPages = Math.ceil(Data.length / itemsPerPage)
+  const [bikes, setBikes] = useState<Bikes[]>([])
+  const [loading, setLoading] = useState(true)
+  const [isOnline, setIsOnline] = useState(true)
+  const [error, setError] = useState(false)
+  const router = useRouter()
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  const currentData = bikes.slice(startIndex, endIndex)
+  const [selectedValue, setSelectedValue] = useState('')
 
+  const handleChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    setSelectedValue(event.target.value)
+  }
+
+  useEffect(() => {
+    const fetchBikes = async () => {
+      setLoading(true)
+      setError(false)
+      let minPrice = 0
+      let maxPrice = 0
+
+      switch (selectedValue) {
+        case 'below-9999':
+          minPrice = 0
+          maxPrice = 9999
+          break
+        case '10000-19999':
+          minPrice = 10000
+          maxPrice = 19999
+          break
+        case '20000-29999':
+          minPrice = 20000
+          maxPrice = 29999
+          break
+        case '30000-above':
+          minPrice = 30000
+          maxPrice = 100000
+          break
+        case 'all':
+          minPrice = 0
+          maxPrice = 10000000
+          break
+        default:
+          minPrice = 0
+          maxPrice = 10000000
+      }
+
+      try {
+        if (category === 'all') {
+          const response = await GetPriceBike(minPrice, maxPrice)
+          setBikes(response)
+        } else {
+          const response = await GetcategoryPriceBike(category, minPrice, maxPrice)
+          setBikes(response)
+        }
+      } catch (error) {
+        setError(true)
+      }
+
+      setLoading(false)
+    }
+
+    fetchBikes()
+  }, [category, selectedValue])
+
+  useEffect(() => {
+    setIsOnline(navigator.onLine)
+
+    const handleOffline = () => setIsOnline(false)
+    const handleOnline = () => setIsOnline(true)
+
+    window.addEventListener('offline', handleOffline)
+    window.addEventListener('online', handleOnline)
+
+    return () => {
+      window.removeEventListener('offline', handleOffline)
+      window.removeEventListener('online', handleOnline)
+    }
+  }, [])
+
+  const totalPages = Math.ceil(bikes.length / itemsPerPage)
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber)
   }
-
-  const startIndex = (currentPage - 1) * itemsPerPage
-  const endIndex = startIndex + itemsPerPage
-  const currentData = Data.slice(startIndex, endIndex)
 
   return (
     <div>
       <div className='sticky top-0 z-20 bg-black'>
         <NavBar />
       </div>
-      <div className='p-[5%]'>
-        <div className='z-10 flex items-center justify-center'>
-          <div className='block'>
-            <div className='block pb-[.3rem]'>
-              <Image src={'img/pinewoodlogohome.svg'} width={200} height={50} alt='Logo' />
-            </div>
-            <div className='block'>
-              <Image
-                src={categoryImg}
-                width={1000}
-                height={50}
-                alt='Logo'
-                style={{ width: '100%' }}
-              />
-            </div>
-          </div>
-        </div>
-        <div className='z-[0] h-[1rem] opacity-90'>
-          <SlideShow slides={slides} />
-        </div>
+      <div>
+        <Topslide categoryImg={categoryImg} />
       </div>
       <div className='flex min-h-screen flex-col border-t-2 border-white/10 bg-[#0b0b0b]'>
         <div className='z-10 min-h-[100vh] bg-[#ffffff]'>
-          <div className='flex w-[95%] items-center justify-center md:justify-end '>
-            <div className=' grid grid-cols-1 items-center justify-between gap-6 pt-6 md:grid-cols-2'>
-              <div>
-                <Search />
-              </div>
-              <select className='w-[80vw] cursor-pointer rounded-md border-2 border-solid border-[#585858] p-[.6rem] text-[.8rem] text-[#070707] outline-1 md:w-[20rem] md:items-center'>
+          <div className='flex w-[100%] items-center justify-center md:w-[95%] md:justify-end'>
+            <div className='flex items-center justify-center  pt-6 '>
+              <select
+                className='w-[80vw] cursor-pointer rounded-md border-2 border-solid border-[#585858] p-[.6rem] text-[.8rem] text-[#070707] outline-1 md:w-[20rem] md:items-center'
+                value={selectedValue}
+                onChange={handleChange}
+              >
                 <option value='' disabled>
-                  Filter By
+                  Filter By Price
                 </option>
-                <option value='all'>ALL</option>
-                <option value='active'>Business Data</option>
-                <option value='active'>Customer Support Data</option>
-                <option value='active'>Product Availability Data</option>
+
+                <option value='all'>All</option>
+                <option value='below-9999'>below - 9,999</option>
+                <option value='10000-19999'>10,000 - 19,999</option>
+                <option value='20000-29999'>20,000 - 29,999</option>
+                <option value='30000-above'>30,000 - above</option>
               </select>
             </div>
           </div>
 
-          <div className='flex items-center justify-center overflow-y-auto pb-8 pt-6'>
-            <div className='grid w-[90%] grid-cols-1 gap-6 overflow-hidden sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'>
-              {currentData.map(card => (
-                <BikeCards
-                  key={card.id}
-                  title={card.title}
-                  price={card.price}
-                  img={card.img}
-                  id={card.id}
-                />
-              ))}
+          {loading ? (
+            <div className='flex h-[60vh] items-center justify-center'>
+              <h2>Loading...</h2>
             </div>
-          </div>
+          ) : !isOnline ? (
+            <div className='flex h-[60vh] items-center justify-center'>
+              <h2>No bikes found</h2>
+            </div>
+          ) : error ? (
+            <div className='flex h-[60vh] items-center justify-center'>
+              <h2>Error occurred.</h2>
+            </div>
+          ) : currentData.length === 0 ? (
+            <div className='flex h-[60vh] items-center justify-center'>
+              <h2 className='text-2xl text-gray-500'>No bikes found</h2>
+            </div>
+          ) : (
+            <div className='flex items-center justify-center overflow-y-auto pb-8 pt-6'>
+              <div className='grid w-[90%] grid-cols-1 gap-6 overflow-hidden sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'>
+                {currentData.map(card => (
+                  <BikeCards
+                    key={card._id}
+                    title={card.model}
+                    price={card.price.toLocaleString()}
+                    img={card.img[0]}
+                    id={card._id}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
           {totalPages > 1 && (
-            <div className='flex items-center justify-center pb-6 text-[.6rem]'>
+            <div className='items-center justify-center pb-6 text-[.6rem]'>
               <div className='flex space-x-4'>
                 {currentPage > 1 && (
                   <button
