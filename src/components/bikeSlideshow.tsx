@@ -5,6 +5,8 @@ const BikeSlideshow: React.FC<{ bikeImgs: string[] }> = ({ bikeImgs }) => {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isMagnified, setIsMagnified] = useState(false)
   const [magnifyPosition, setMagnifyPosition] = useState({ x: 0, y: 0 })
+  const [touchStartX, setTouchStartX] = useState(0)
+  const [isSwiping, setIsSwiping] = useState(false)
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const { left, top, width, height } = e.currentTarget.getBoundingClientRect()
@@ -27,6 +29,36 @@ const BikeSlideshow: React.FC<{ bikeImgs: string[] }> = ({ bikeImgs }) => {
     setCurrentIndex(index)
   }
 
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    setTouchStartX(e.touches[0].clientX)
+    setIsSwiping(true)
+  }
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!isSwiping) return
+
+    const touchCurrentX = e.touches[0].clientX
+    const differenceX = touchCurrentX - touchStartX
+
+    if (differenceX > 50) {
+      // Swipe right
+      if (currentIndex > 0) {
+        setCurrentIndex(currentIndex - 1)
+      }
+      setIsSwiping(false)
+    } else if (differenceX < -50) {
+      // Swipe left
+      if (currentIndex < bikeImgs.length - 1) {
+        setCurrentIndex(currentIndex + 1)
+      }
+      setIsSwiping(false)
+    }
+  }
+
+  const handleTouchEnd = () => {
+    setIsSwiping(false)
+  }
+
   return (
     <div className='w-full'>
       <div
@@ -34,6 +66,9 @@ const BikeSlideshow: React.FC<{ bikeImgs: string[] }> = ({ bikeImgs }) => {
         onMouseMove={handleMouseMove}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       >
         <div className='slide overflow-hidden'>
           <div

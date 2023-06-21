@@ -11,7 +11,7 @@ export interface BikesModel {
 }
 
 export const GetallBike = async () => {
-  const response = await fetch('http://localhost:9090/bikes/get')
+  const response = await fetch('https://backendpinewood-production.up.railway.app/bikes/get')
   if (!response.ok) {
     throw new Error('Request failed')
   }
@@ -20,13 +20,17 @@ export const GetallBike = async () => {
 }
 
 export const GetspecBike = async (bikeId: string) => {
-  const response = await fetch(`http://localhost:9090/bikes/get/${bikeId}`)
+  const response = await fetch(
+    `https://backendpinewood-production.up.railway.app/bikes/get/${bikeId}`
+  )
   if (!response.ok) throw new Error('Request failed')
   return (await response.json()).pinewoodBike
 }
 
 export const GetcategoryBike = async (category: string) => {
-  const response = await fetch(`http://localhost:9090/bikes/filterByCategory?category=${category}`)
+  const response = await fetch(
+    `https://backendpinewood-production.up.railway.app/bikes/filterByCategory?category=${category}`
+  )
   if (!response.ok) {
     throw new Error('Request failed')
   }
@@ -40,7 +44,7 @@ export const GetcategoryPriceBike = async (
   maxPrice: number
 ) => {
   const response = await fetch(
-    `http://localhost:9090/bikes/filterByPriceCategory?category=${category}&minPrice=${minPrice}&maxPrice=${maxPrice}`
+    `https://backendpinewood-production.up.railway.app/bikes/filterByPriceCategory?category=${category}&minPrice=${minPrice}&maxPrice=${maxPrice}`
   )
   if (!response.ok) {
     throw new Error('Request failed')
@@ -51,7 +55,7 @@ export const GetcategoryPriceBike = async (
 
 export const GetPriceBike = async (minPrice: number, maxPrice: number) => {
   const response = await fetch(
-    `http://localhost:9090/bikes/filterPrice?minPrice=${minPrice}&maxPrice=${maxPrice}`
+    `https://backendpinewood-production.up.railway.app/bikes/filterPrice?minPrice=${minPrice}&maxPrice=${maxPrice}`
   )
   if (!response.ok) {
     throw new Error('Request failed')
