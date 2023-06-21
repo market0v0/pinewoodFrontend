@@ -7,23 +7,19 @@
   padding: 0;
   box-sizing: border-box;
 }
-.overflow-auto::-webkit-scrollbar {
-  width: 0.5rem;
-  height: 0.5rem;
+.custom-scrollbar::-webkit-scrollbar-track {
+  background-color: transparent;
 }
 
-.overflow-auto::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0);
-  border-radius: 0.1rem;
-}
-.overflow-y-auto::-webkit-scrollbar {
-  width: 0.5rem;
-  height: 0.5rem;
+/* Handle color */
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #4fd1c5;
+  border-radius: 10px;
 }
 
-.overflow-y-auto::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0);
-  border-radius: 0.1rem;
+/* Handle color on hover */
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #38b2ac;
 }
 @keyframes fade-in {
   0% {
